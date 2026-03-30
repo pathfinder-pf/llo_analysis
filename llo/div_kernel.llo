@@ -1,0 +1,76 @@
+= control target key start
+LH: loop header
+LB: loop body
+LE: loop exit
+PB: predicated region body
+PF: predicated region fallthrough
+CT: control target
+= control target key end
+
+     0   :  { %7 = vsyncpa [#allocation3], 0  ;;  %s122_s0 = inlined_call_operand.hbm [shape: f32[127], index: 0, kind: input, shape index: {}] /* input window allocation for operator input 0. The window shape is f32[127], while the full shape is f32[127]. The u8 shape/size shown above represents the raw byte size of this window in VMEM.  */  ;;  %s123_s1 = inlined_call_operand.vmem [shape: f32[127], index: 1, kind: input, shape index: {}] /* input window allocation for operator input 1. The window shape is f32[127], while the full shape is f32[127]. The u8 shape/size shown above represents the raw byte size of this window in VMEM.  */  ;;  %s124_s2 = inlined_call_operand.hbm [shape: f32[127], index: 2, kind: output, shape index: {}] /* output window allocation for operator output 0. The window shape is f32[127], while the full shape is f32[127]. The u8 shape/size shown above represents the raw byte size of this window in VMEM.  */ } /* entry bundle: %tpu_custom_call.1 = custom-call(%args_0_.1, %copy-done) */
+   0x1   :  { %8 = vsyncpa [#allocation4], 0  ;;  %s96_s9 = smov [#allocation2] /* materialized constant */ }
+   0x2   :  { %s15_s10 = sshll.u32 %s96_s9, 4  ;;  %s16_s10 = int_to_ptr.vmem [resolvable:$true] %s15_s10 }
+   0x3   :  { %s60_s11 = scalar_lea.vmem %s16_s10, 16  ;;  %s64_s12 = scalar_lea.vmem %s16_s10, 32 }
+   0x4   :  { %p61_p0 = scmp.ne.s32.totalorder %s16_s10, %s60_s11  ;;  %p65_p1 = scmp.lt.s32.totalorder %s16_s10, %s16_s10 }
+   0x5   :  { %p66_p2 = scmp.lt.s32.totalorder %s64_s12, %s60_s11 }
+   0x6   :  { %p67_p3 = por %p66_p2, %p65_p1 }
+   0x7   :  { %p68_p4 = pnand %p67_p3, %p61_p0 }
+   0x8   :  { %71 = shalt.err (!%p68_p4) /* BoundsCheck 0 [deref of %s16] for %18 = dma.hbm_to_vmem [thread:$0]  /*hbm=*/%s0, /*size_in_granules=*/16, /*vmem=*/%s16, /*dst_syncflagno=*/[#allocation3] /* 
+base_bounds: (1)
+dynamic_base_bounds: (1)
+window_bounds: (1)
+iteration_bounds: (1)
+strides: (1)
+pad_low: (0)
+pad_high: (0)
+element_size_in_bytes: 512
+second_minor_factor: 1 */
+hlo: tpu_custom_call.1
+ */ }
+   0x9   :  { %18 = dma.hbm_to_vmem [thread:$0]  /*hbm=*/%s122_s0, /*size_in_granules=*/16, /*vmem=*/%s16_s10, /*dst_syncflagno=*/[#allocation3] /* 
+base_bounds: (1)
+dynamic_base_bounds: (1)
+window_bounds: (1)
+iteration_bounds: (1)
+strides: (1)
+pad_low: (0)
+pad_high: (0)
+element_size_in_bytes: 512
+second_minor_factor: 1 */ }
+   0xa   :  { %92 = dma.done.wait [#allocation3], 16 /* pipeline-emitter-dma-wait */ }
+   0xb   :  { %93 = vsyncadd [#allocation3], 4294967280  ;;  %v25_v0 = vld [vmem:[%s123_s1] sm:$0x1]  ;;  %v28_v1 = vlaneseq  ;;  %s97_s17 = smov [#allocation5] /* materialized constant */ }
+   0xc   :  { %50 = vrcp.f32 %v25_v0  ;;  %v24_v2 = vld [vmem:[#allocation2] sm:$0x1]  ;;  %s39_s18 = sshll.u32 %s97_s17, 4  ;;  %s40_s18 = int_to_ptr.vmem [resolvable:$true] %s39_s18 }
+   0xd   :  { %vm30_vm0 = vcmp.lt.s32.totalorder %v28_v1, 127  ;;  %s72_s19 = scalar_lea.vmem %s40_s18, 16  ;;  %s76_s20 = scalar_lea.vmem %s40_s18, 32 }
+   0xe   :  { %p73_p5 = scmp.ne.s32.totalorder %s40_s18, %s72_s19  ;;  %p77_p6 = scmp.lt.s32.totalorder %s40_s18, %s40_s18 }
+   0xf   :  { %p78_p7 = scmp.lt.s32.totalorder %s76_s20, %s72_s19 }
+  0x10   :  { %p79_p8 = por %p78_p7, %p77_p6 }
+  0x11   :  { %p80_p9 = pnand %p79_p8, %p73_p5 }
+  0x12   :  { %v51_v3 = vpop.eup %50 }
+  0x13   :  { %v27_v4 = vmul.f32 %v51_v3, %v24_v2 }
+  0x14   :  { %32 = vst.msk [vmem:[#allocation5] sm:$0x1] /*vm=*/%vm30_vm0, /*vst_source=*/%v27_v4 }
+  0x15   :  { %83 = shalt.err (!%p80_p9) /* BoundsCheck 4 [deref of %s40] for %42 = dma.vmem_to_hbm [thread:$0]  /*vmem=*/%s40, /*size_in_granules=*/16, /*hbm=*/%s2, /*dst_syncflagno=*/[#allocation4] /* 
+base_bounds: (1)
+dynamic_base_bounds: (1)
+window_bounds: (1)
+iteration_bounds: (1)
+strides: (1)
+pad_low: (0)
+pad_high: (0)
+element_size_in_bytes: 512
+second_minor_factor: 1 */
+hlo: tpu_custom_call.1
+ */ }
+  0x16   :  { %42 = dma.vmem_to_hbm [thread:$0]  /*vmem=*/%s40_s18, /*size_in_granules=*/16, /*hbm=*/%s124_s2, /*dst_syncflagno=*/[#allocation4] /* 
+base_bounds: (1)
+dynamic_base_bounds: (1)
+window_bounds: (1)
+iteration_bounds: (1)
+strides: (1)
+pad_low: (0)
+pad_high: (0)
+element_size_in_bytes: 512
+second_minor_factor: 1 */ }
+  0x17   :  { %94 = dma.done.wait [#allocation4], 16 /* pipeline-emitter-dma-wait */ }
+  0x18   :  { %95 = vsyncadd [#allocation4], 4294967280 }
+  0x19   :  { %46 = vsyncpa [#allocation3], 1 }
+  0x1a   :  { %47 = vsyncpa [#allocation4], 1 } /* exit bundle: %tpu_custom_call.1 = custom-call(%args_0_.1, %copy-done) */
