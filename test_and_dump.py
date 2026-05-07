@@ -10,7 +10,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from kernels.arithmetic import vector_add, vector_sub, vector_mul, vector_div, vector_mod, vector_round
+from kernels.arithmetic import vector_add, vector_sub, vector_mul, vector_div, vector_mod, vector_round, matrix_add
 from kernels.control_flow import (
     vector_relu, vector_clamp, vector_cond, vector_cumsum
 )
@@ -28,7 +28,8 @@ os.environ["XLA_FLAGS"] = (
 )
 
 os.environ["LIBTPU_INIT_ARGS"] = (
-    f"--xla_jf_dump_to={LLO_DUMP_PATH} "
+    f"--xla_mosaic_dump_to={LLO_DUMP_PATH} " # 最终确定的LLO指令
+    f"--xla_jf_dump_to={LLO_DUMP_PATH} " # 打包后的VLIW指令束
     f"--xla_jf_dump_hlo_text=true "
     f"--xla_jf_dump_llo_text=true "
     f"--xla_jf_dump_llo_html=false "
@@ -54,6 +55,13 @@ y_m = jnp.array(np.random.randn(K, Nb).astype(np.float32))
 
 def test_add():
     fn_i = partial(vector_add, interpret=False)
+    z = fn_i(x, y)
+
+def test_matrix_add():
+    fn_i = partial(matrix_add, interpret=False)
+    m, k, n, p = 4,16,8,128
+    x = jnp.array(np.random.randn(m, k, n, p).astype(np.float32))
+    y = jnp.array(np.random.randn(m, k, n, p).astype(np.float32))
     z = fn_i(x, y)
 
 def test_sub():
